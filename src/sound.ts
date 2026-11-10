@@ -1,0 +1,4 @@
+let context:AudioContext|undefined
+function tone(frequency:number,duration:number,volume:number){try{context??=new AudioContext();if(context.state==='suspended')void context.resume();const oscillator=context.createOscillator(),gain=context.createGain(),now=context.currentTime;oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,now);gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(volume,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);oscillator.connect(gain).connect(context.destination);oscillator.start(now);oscillator.stop(now+duration)}catch{/* Trình duyệt không hỗ trợ âm thanh: tiếp tục chơi im lặng. */}}
+export function choiceSound(){tone(523,.13,.045);setTimeout(()=>tone(659,.2,.025),75)}
+export function ambientNote(){tone([196,220,261.6,293.7][Math.floor(Math.random()*4)],2.8,.008)}

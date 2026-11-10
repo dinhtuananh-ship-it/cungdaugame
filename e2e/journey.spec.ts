@@ -1,0 +1,37 @@
+import {test,expect} from '@playwright/test'
+test('bắt đầu, tạo nhân vật, chọn lời thoại, lưu và khôi phục',async({page})=>{
+  await page.goto('/');await expect(page.getByRole('heading',{name:/PHƯỢNG/})).toBeVisible()
+  await page.getByRole('button',{name:/BẮT ĐẦU HÀNH TRÌNH/}).click()
+  await page.getByPlaceholder('Nhập tên của nàng...').fill('Minh Châu')
+  await page.getByRole('button',{name:/BƯỚC VÀO CUNG/}).click()
+  await expect(page.getByText('Tuyển Tú Nhập Cung')).toBeVisible()
+  await page.getByRole('button',{name:/HIỆN TOÀN BỘ LỜI THOẠI/}).click()
+  await page.getByRole('button',{name:/CHẠM ĐỂ TIẾP TỤC/}).click()
+  await page.getByRole('button',{name:/HIỆN TOÀN BỘ LỜI THOẠI/}).click()
+  await page.getByRole('button',{name:/Hành lễ đúng phép/}).click()
+  await page.getByRole('button',{name:/Lưu game/}).click()
+  await expect(page.getByText('Minh Châu')).toBeVisible()
+  await page.reload();await expect(page.getByText('Minh Châu')).toBeVisible()
+  await page.getByRole('button',{name:/Tải/}).first().click()
+  await expect(page.getByText('Tuyển Tú Nhập Cung')).toBeVisible()
+})
+test('màn hình điện thoại không cuộn ngang',async({page})=>{await page.goto('/');for(const width of [360,375,390,414]){await page.setViewportSize({width,height:780});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)}})
+test('chơi qua năm chương và mở khóa một kết thúc',async({page})=>{
+  await page.goto('/');await page.evaluate(()=>localStorage.setItem('phuong-settings',JSON.stringify({speed:3,motion:false,music:false})))
+  await page.reload();await page.getByRole('button',{name:/BẮT ĐẦU HÀNH TRÌNH/}).click()
+  await page.getByPlaceholder('Nhập tên của nàng...').fill('Ngọc Nhi')
+  await page.getByRole('button',{name:/BƯỚC VÀO CUNG/}).click()
+  for(let i=0;i<65;i++){
+    await page.waitForFunction(()=>!!document.querySelector('.choice:not(.locked),.continue-button:not([disabled]),.dialogue-controls .btn'))
+    if(await page.getByRole('button',{name:/XEM VẬN MỆNH/}).count())break
+    const choices=page.locator('.choice:not(.locked)')
+    if(await choices.count())await choices.first().click()
+    else await page.locator('.continue-button:not([disabled])').click({timeout:5000})
+  }
+  await expect(page.getByRole('button',{name:/XEM VẬN MỆNH/})).toBeVisible()
+  await page.getByRole('button',{name:/XEM VẬN MỆNH/}).click()
+  await expect(page.getByRole('heading',{name:'Phượng Nghi Thiên Hạ'})).toBeVisible()
+  await page.getByRole('button',{name:/VỀ MÀN HÌNH CHÍNH/}).click()
+  await page.getByRole('button',{name:/Thư viện kết thúc/}).click()
+  await expect(page.getByText('Phượng Nghi Thiên Hạ')).toBeVisible()
+})
